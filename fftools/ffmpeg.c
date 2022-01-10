@@ -1382,6 +1382,15 @@ static void do_video_out(OutputFile *of,
                     av_ts2str(pkt->dts), av_ts2timestr(pkt->dts, &ost->mux_timebase));
             }
 
+            AVDictionary *sa_metadata = in_picture->metadata;
+            AVDictionaryEntry *entry = av_dict_get(sa_metadata, "lavfi.sa.state", NULL, 0);
+
+            if (entry)
+            {
+                uint8_t *sd = av_packet_new_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA, sizeof(AVDictionaryEntry));
+                memcpy(sd, entry, sizeof(AVDictionaryEntry));
+            }
+
             frame_size = pkt->size;
             output_packet(of, pkt, ost, 0);
 

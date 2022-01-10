@@ -2146,6 +2146,26 @@ static int dash_write_packet(AVFormatContext *s, AVPacket *pkt)
         seg_end_duration = os->seg_duration;
     }
 
+    AVDictionaryEntry *side_data = (AVDictionaryEntry *)av_packet_get_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA, NULL);
+
+    if (side_data)
+    {
+        avio_wb32(os->ctx->pb, 16);
+        ffio_wfourcc(os->ctx->pb, "free");
+
+        int state;
+        float f_pts;
+        unsigned int ui_pts;
+
+        // * Convert data
+        sscanf(side_data->value, "%d", &state);
+        f_pts = (float) pkt->pts * av_q2d(st->time_base);
+        memcpy(&ui_pts, &f_pts, sizeof(ui_pts));
+
+        avio_wb32(os->ctx->pb, ui_pts);
+        avio_wb32(os->ctx->pb, state);
+    }
+
     if (os->parser &&
         (os->frag_type == FRAG_TYPE_PFRAMES ||
          as->trick_idx >= 0)) {
