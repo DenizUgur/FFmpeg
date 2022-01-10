@@ -181,7 +181,7 @@ static void snooker_end_frame_filter(AVFilterContext *ctx, IplImage *inimg, IplI
                    CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
     // ! Draw ball contours
-    CvPoint ball_points[MAX_SNOOKER_BALL_COUNT];
+    CvPoint *ball_points = (CvPoint *) av_malloc_array(MAX_SNOOKER_BALL_COUNT, sizeof(CvPoint));
     int ball_count = 0;
 
     while (ball_contours)
@@ -193,6 +193,9 @@ static void snooker_end_frame_filter(AVFilterContext *ctx, IplImage *inimg, IplI
             CvRect rect = cvBoundingRect(ball_contours, 1);
             double x = rect.x + rect.width / 2;
             double y = rect.y + rect.height / 2;
+
+            if (ball_count >= MAX_SNOOKER_BALL_COUNT)
+                ball_points = av_realloc_array(ball_points, ball_count + 1, sizeof(CvPoint));
 
             ball_points[ball_count++] = cvPoint(x, y);
 
