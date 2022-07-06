@@ -181,7 +181,7 @@ static void snooker_end_frame_filter(AVFilterContext *ctx, IplImage *inimg, IplI
                    CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
     // ! Draw ball contours
-    CvPoint *ball_points = (CvPoint *) av_malloc_array(MAX_SNOOKER_BALL_COUNT, sizeof(CvPoint));
+    CvPoint *ball_points = (CvPoint *)av_malloc_array(MAX_SNOOKER_BALL_COUNT, sizeof(CvPoint));
     int ball_count = 0;
 
     while (ball_contours)
@@ -206,7 +206,7 @@ static void snooker_end_frame_filter(AVFilterContext *ctx, IplImage *inimg, IplI
                 av_log(ctx, AV_LOG_INFO, "[BALL] i=%d x=%.2f y=%.2f\t\n", ball_count, x, y);
         }
 
-        //obtain the next contour
+        // obtain the next contour
         ball_contours = ball_contours->h_next;
     }
 
@@ -242,7 +242,7 @@ static void snooker_end_frame_filter(AVFilterContext *ctx, IplImage *inimg, IplI
     }
 
     // ! Init before ball coordinates
-    int coords[ball_count];
+    int *coords = (int *)av_malloc_array(ball_count, sizeof(int));
     double ux = snooker_rect.width / snooker->precision;
     double uy = snooker_rect.height / snooker->precision;
 
@@ -306,7 +306,7 @@ snooker_momentum_end:
 
 snooker_copyto_prev:
     snooker->previous_balls_count = ball_count;
-    memcpy(snooker->previous_balls, coords, sizeof(coords));
+    memcpy(snooker->previous_balls, coords, sizeof(int) * ball_count);
 
     // ! Here we have snooker rect (cvRect) and ball coordinates (cvPoint) inside it
     if (s->debug_level > 0)
